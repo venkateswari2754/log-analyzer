@@ -1,0 +1,10 @@
+# Python virtual environment
+.venv/
+venv/
+
+# Environment variables
+.env
+
+# Cache and Vector Store
+cache_*.pkl
+vector_store_*/

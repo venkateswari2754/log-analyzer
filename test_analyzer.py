@@ -52,3 +52,8 @@ class TestLogAnalyzer:
     def test_file_validation_size_exceeded(self):
         """Test file validation with size exceeded"""
         large_size = 101 * 1024 * 1024  # 101MB
+        mock_file = self.create_mock_file(self.sample_log_content, "large.log", large_size)
+        is_valid, message = self.analyzer.validate_file(mock_file)
+        
+        assert is_valid == False
+        assert message == "File size exceeds 100MB limit"
