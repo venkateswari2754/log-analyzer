@@ -2,8 +2,7 @@
 .venv/
 venv/
 
-# Environment variables
-.env
+
 
 # Cache and Vector Store
 cache_*.pkl
