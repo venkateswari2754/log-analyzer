@@ -1,7 +1,7 @@
-## Log Analyzer
+# Log Analyzer
 Log Analyzer is an intelligent, Streamlit-based tool for analyzing industry-level log files. It leverages Groq AI and vector search to provide advanced insights, issue detection, and visual analytics.
 
-# Features
+## Features
 📁 Upload and process .log files (up to 100MB)
 🔍 Automatic detection of recurring issues and error patterns
 📊 Interactive visualizations for log levels, error types, and activity timeline
