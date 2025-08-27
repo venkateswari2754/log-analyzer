@@ -2,8 +2,10 @@
 .venv/
 venv/
 
-
+.env
 
 # Cache and Vector Store
 cache_*.pkl
 vector_store_*/
+# Logs
+*.log
