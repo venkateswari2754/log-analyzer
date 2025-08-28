@@ -2,8 +2,9 @@ streamlit
 pandas
 plotly
 langchain
-langchain-groq
+langchain-openai
+openai
 sentence-transformers
 huggingface-hub
 python-dotenv
-faiss-gpu
+faiss-cpu

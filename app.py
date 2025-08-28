@@ -11,7 +11,7 @@ import plotly.graph_objects as go
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain.vectorstores import FAISS
-from langchain_groq import ChatGroq
+from langchain_openai import ChatOpenAI
 from langchain.chains import RetrievalQA
 from langchain.document_loaders import TextLoader
 from langchain.schema import Document
@@ -44,7 +44,7 @@ def get_embeddings_model():
 
 class LogAnalyzer:
     """
-    Optimized Industry-level Log Analyzer with Groq AI capabilities
+    Optimized Industry-level Log Analyzer with OpenAI AI capabilities
     """
     
     def __init__(self):
@@ -331,16 +331,16 @@ class LogAnalyzer:
         
         return fig_levels, timeline_fig, fig_errors
     
-    def setup_ai_chain(self, groq_api_key: str, model_name: str = "llama3-8b-8192"):
+    def setup_ai_chain(self, openai_api_key: str, model_name: str = "gpt-3.5-turbo"):
         """
-        Optimized setup for AI-powered log analysis using Groq
+        Optimized setup for AI-powered log analysis using OpenAI
         """
         try:
             # Check if vector store already exists for this file
             if self.log_hash and self.load_vector_store(self.log_hash):
-                # Create Groq LLM
-                llm = ChatGroq(
-                    groq_api_key=groq_api_key,
+                # Create OpenAI LLM
+                llm = ChatOpenAI(
+                    openai_api_key=openai_api_key,
                     model_name=model_name,
                     temperature=0
                 )
@@ -411,9 +411,9 @@ class LogAnalyzer:
             if self.log_hash:
                 self.save_vector_store(self.log_hash)
             
-            # Create Groq LLM
-            llm = ChatGroq(
-                groq_api_key=groq_api_key,
+            # Create OpenAI LLM
+            llm = ChatOpenAI(
+                openai_api_key=openai_api_key,
                 model_name=model_name,
                 temperature=0
             )
@@ -438,10 +438,10 @@ class LogAnalyzer:
     
     def query_logs(self, question: str) -> str:
         """
-        Query logs using Groq AI
+        Query logs using OpenAI AI
         """
         if self.qa_chain is None:
-            return "AI chain not initialized. Please provide Groq API key."
+            return "AI chain not initialized. Please provide OpenAI API key."
         
         try:
             result = self.qa_chain({"query": question})
@@ -487,38 +487,39 @@ def main():
     with st.sidebar:
         st.header("Configuration")
         
-        # Try to get Groq API key from environment variable
-        groq_key_from_env = os.getenv("GROQ_API_KEY")
+        # Try to get OpenAI API key from environment variable
+        openai_key_from_env = os.getenv("OPENAI_API_KEY")
         
-        if groq_key_from_env:           
-            groq_key = groq_key_from_env
-            st.session_state.groq_key = groq_key
+        if openai_key_from_env:
+            
+            openai_key = openai_key_from_env
+            st.session_state.openai_key = openai_key
         else:
             # Fallback to manual input if not found in .env
-            groq_key = st.text_input(
-                "Groq API Key",
+            openai_key = st.text_input(
+                "OpenAI API Key",
                 type="password",
-                help="Enter your Groq API key to enable AI-powered analysis (or add GROQ_KEY to .env file)",
-                placeholder="Add GROQ_KEY to .env file or enter manually"
+                help="Enter your OpenAI API key to enable AI-powered analysis (or add OPENAI_API_KEY to .env file)",
+                placeholder="Add OPENAI_API_KEY to .env file or enter manually"
             )
             
-            if groq_key:
-                st.session_state.groq_key = groq_key
+            if openai_key:
+                st.session_state.openai_key = openai_key
             else:
-                st.warning("⚠️ No Groq API key found in .env file or entered manually")
+                st.warning("⚠️ No OpenAI API key found in .env file or entered manually")
         
         # Model selection
         model_options = [
-            "llama3-8b-8192",
-            "llama3-70b-8192", 
-            "mixtral-8x7b-32768",
-            "gemma-7b-it"
+            "gpt-3.5-turbo",
+            "gpt-4", 
+            "gpt-4-32k",
+            "gpt-4-turbo-preview"
         ]
         
         selected_model = st.selectbox(
-            "Select Groq Model",
+            "Select OpenAI Model",
             model_options,
-            help="Choose the Groq model for analysis"
+            help="Choose the OpenAI model for analysis"
         )
         
         st.session_state.selected_model = selected_model        
@@ -536,12 +537,12 @@ def main():
         """)
         
         st.markdown("---")
-        st.markdown("### Groq Models")
+        st.markdown("### OpenAI Models")
         st.markdown("""
-        - **llama3-8b-8192**: Fast, efficient
-        - **llama3-70b-8192**: More capable
-        - **mixtral-8x7b-32768**: Large context
-        - **gemma-7b-it**: Google's model
+        - **gpt-3.5-turbo**: Fast, efficient
+        - **gpt-4**: More capable
+        - **gpt-4-32k**: Large context
+        - **gpt-4-turbo-preview**: Latest model
         """)
     
     # Main content area
@@ -569,20 +570,20 @@ def main():
                         st.success("✅ Log file processed successfully!")
                         
                         # Setup AI if API key provided
-                        if hasattr(st.session_state, 'groq_key'):
+                        if hasattr(st.session_state, 'openai_key'):
                             # Check if AI is already setup for this file
                             if (hasattr(st.session_state.analyzer, 'qa_chain') and 
                                 st.session_state.analyzer.qa_chain is not None and
                                 st.session_state.analyzer.log_hash == st.session_state.analyzer.get_file_hash(uploaded_file.getvalue().decode('utf-8'))):
                                 st.success("🤖 AI already initialized for this file!")
                             else:
-                                with st.spinner("Setting up Groq AI analysis..."):
+                                with st.spinner("Setting up OpenAI AI analysis..."):
                                     success = st.session_state.analyzer.setup_ai_chain(
-                                        st.session_state.groq_key,
+                                        st.session_state.openai_key,
                                         st.session_state.selected_model
                                     )
                                     if success:
-                                        st.success("🤖 Groq AI initialized successfully!")
+                                        st.success("🤖 OpenAI AI initialized successfully!")
                         
                         # Display basic stats
                         st.markdown("#### 📊 Basic Statistics")
@@ -667,8 +668,8 @@ def main():
                 user_query = selected_prompt
             
             if st.button("🔍 Analyze", key="ai_analyze") and user_query:
-                with st.spinner("Analyzing logs with Groq AI..."):
-                    if hasattr(st.session_state, 'groq_key'):
+                with st.spinner("Analyzing logs with OpenAI AI..."):
+                    if hasattr(st.session_state, 'openai_key'):
                         response = st.session_state.analyzer.query_logs(user_query)
                         st.markdown("#### AI Response:")
                         st.markdown(response)
@@ -681,7 +682,7 @@ def main():
                                 response += f"{i}. {issue['emoji']} {issue['issue']} - {issue['count']} occurrences\n"
                             st.markdown(response)
                         else:
-                            st.info("Please provide a Groq API key for advanced AI analysis, or use the 'List top 3 issues' query.")
+                            st.info("Please provide a OpenAI API key for advanced AI analysis, or use the 'List top 3 issues' query.")
         
         with ai_tab2:
             st.markdown("#### Semantic Log Search")
@@ -695,7 +696,7 @@ def main():
             search_count = st.slider("Number of results", 1, 10, 5)
             
             if st.button("🔎 Search Similar Logs", key="semantic_search") and search_query:
-                if hasattr(st.session_state, 'groq_key'):
+                if hasattr(st.session_state, 'openai_key'):
                     with st.spinner("Searching for similar logs..."):
                         similar_logs = st.session_state.analyzer.get_similar_logs(search_query, search_count)
                         
@@ -710,7 +711,7 @@ def main():
                         else:
                             st.info("No similar logs found.")
                 else:
-                    st.info("Please provide a Groq API key to enable semantic search.")
+                    st.info("Please provide a OpenAI API key to enable semantic search.")
 
 if __name__ == "__main__":
     main()
